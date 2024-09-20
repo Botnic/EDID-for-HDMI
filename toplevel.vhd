@@ -13,7 +13,7 @@ END ENTITY;
 
 ARCHITECTURE behavior OF toplevel IS
 TYPE main IS (READ, WAITSTART, WAITVALUE, DONE);
-SIGNAL currentMain, nextMain : main;
+SIGNAL currentMain : main;
 
 TYPE display IS (NAME, MANU, RESO, DIME);
 SIGNAL currentDisplay : display;
@@ -231,12 +231,12 @@ BEGIN
             ELSE
                 CASE currentMain IS
                 WHEN READ => enableEDID <= '1';
-                    nextMain <= WAITSTART;
+                    currentMain <= WAITSTART;
                 WHEN WAITSTART => IF NOT readyEDID THEN
-                    nextMain <= WAITVALUE;
+                    currentMain <= WAITVALUE;
                 END IF;
                 WHEN WAITVALUE => IF readyEDID THEN
-                    nextMain <= DONE;
+                    currentMain <= DONE;
                 END IF;
                 WHEN DONE => enableEDID <= '0';
                 END CASE;
@@ -249,13 +249,6 @@ BEGIN
         IF RISING_EDGE(clk) THEN
             tx_name <= nameLogic(47 - nameCounter * 8 DOWNTO 40 - nameCounter * 8);
             tx_reso <= resoLogic(95 - resoCounter * 8 DOWNTO 88 - resoCounter * 8);
-        END IF;
-    END PROCESS;
-
-    PROCESS(ALL)
-        BEGIN
-        IF RISING_EDGE(clk) THEN
-            currentMain <= nextMain;
         END IF;
     END PROCESS;
 END ARCHITECTURE;
